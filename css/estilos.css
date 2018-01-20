@@ -1,0 +1,59 @@
+.marco{
+	margin:0px;
+	height:670px;
+}
+.contenido{
+	height: 84%;
+}
+
+.footer{
+	background: #2C2A2A;
+	text-align: center;
+	color: #fff;
+	padding: 1%;
+}
+
+.entradas{
+	float: left;
+	margin-left: 0%;
+	margin-right: 1%;
+	padding: 0;
+	width: 39%;
+}
+
+.salidas{
+	float: right;
+	margin: 0;
+	padding: 0;
+	width: 60%;
+}
+
+.salidas .contenedor-tabla{
+	width: 100%;
+	height: 500px;
+	overflow: auto;
+}
+
+.salidas .contenedor-tabla .tabla{
+	width: 100%;
+	height: 100%;
+}
+
+/* ventana modal */
+#ventana1 .contenedor-tabla-modal{
+	width: 100%;
+	overflow: auto;
+}
+
+#ventana1 .contenedor-tabla-modal .tabla-modal{
+	width: 100%;
+}
+
+/* mostrar y ocultar div */
+.mostrar{
+	display: block;
+}
+
+.ocultar{
+	display: none;
+}

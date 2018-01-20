@@ -1,0 +1,19 @@
+.cabeza{
+
+}
+
+.titulo{
+	position: absolute;
+	left: 900px;
+	top: -5px;
+}
+
+table{
+	border: 1px solid #333;
+	width: 100%;
+}
+
+td, th{
+	padding: 5px;
+	text-align: center;
+}

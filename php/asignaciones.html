@@ -1,0 +1,162 @@
+<div id="tab1">
+	<div class="entradas">
+		<form name="formulario" class="form-horizontal" id="datos-entrada">
+			<div class="form-group">
+				<label for="carne" class="control-label col-md-4">Carne</label>
+				<div class="col-md-8">
+					<input class="form-control" type="text" name="carne" id="carne" placeholder="Carne" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="nombres" class="control-label col-md-4">Nombres</label>
+				<div class="col-md-8">
+					<input class="form-control" type="text" name="nombres" id="nombres" placeholder="Nombress" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="apellidos" class="control-label col-md-4">Apellidos</label>
+				<div class="col-md-8">
+					<input class="form-control" type="text" name="apellidos" id="apellidos" placeholder="Apellidos" autocomplete="off">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="salon" class="control-label col-md-4">Salon</label>
+				<div class="col-md-8">
+					<select name="salon" class="form-control" id="salon">
+						
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="calificacion" class="control-label col-md-4">Calificacion</label>
+				<div class="col-md-8">
+					<input class="form-control" type="text" name="calificacion" id="calificacion" placeholder="Calificacion">
+				</div>
+			</div>
+			<!-- fecha inscripcion -->
+			<div class="form-group">
+				<label for="fechaing" class="control-label col-md-4">Fecha Ingreso</label>
+				<div class="col-md-8">
+					<input class="form-control" type="date" name="fechaing" id="ingreso" value="">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="centro-estudio" class="control-label col-md-4">Centro</label>
+				<div class="col-md-8">
+					<select name="centro" class="form-control" id="centro-estudio" >
+						
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="facultad" class="control-label col-md-4">Facultad</label>
+				<div class="col-md-8">
+					<select name="fa" class="form-control" id="facultad">
+						
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="semestre" class="control-label col-md-4">Semestre</label>
+				<div class="col-md-8">
+					<select name="semestre" class="form-control" id="semestre">
+						
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="curso" class="control-label col-md-4">Curso</label>
+				<div class="col-md-8">
+					<select name="curso" class="form-control" id="curso" >
+						
+					</select>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<input type="button" value="Limpiar" class="btn btn-primary" id="nuevo">
+			</div>
+			<div class="col-md-3">
+				<input type="button" value="Guardar" class="btn btn-primary" id="guardar">
+			</div>
+			<div class="col-md-3">
+				<input type="button" value="Editar" class="btn btn-primary" id="actualizar">
+			</div>
+			<div class="col-md-3">
+				<input type="button" value="Eliminar" class="btn btn-primary" id="eliminar">
+			</div>
+
+		</form>
+
+
+		<br> <br>
+		<div>
+			<p>Puede buscar Asignaciones por Carne, nombres y apellidos.</p>
+		</div>
+	</div>	
+
+
+	<!--tabla -->
+	<div class="salidas">
+		<h4>Asignaciones:</h4>
+		<div class="contenedor-tabla">
+			<table id="cursos"class="table-hover tabla">
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>Carne</th>
+						<th>Nombres</th>
+						<th>Apellidos</th>
+						<th>Curso</th>
+						<th>Nota</th>
+						<th>Facultad</th>
+						<th>Semestre</th>
+						<th>Centro</th>
+						<th>Inscripcion</th>
+						<th>Salon</th>
+					</tr>	
+				</thead>
+				
+			</table>
+		</div>
+
+	</div>
+</div>
+
+
+<!--ventanas modales Busqueda-->
+	<div class="modal fade" id="ventana1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" id="cerrar-modal" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title">Alumnos</h4>
+				</div>
+				<!--contenido-->
+				<div class="modal-body">
+					<div class="contenedor-tabla-modal">
+						<table id="alumno-nombres"class="table-hover tabla-modal">
+							<thead>
+								<tr>
+									<th>Carne</th>
+									<th>Nombres</th>
+									<th>Apellidos</th>
+									<th>Género</th>
+									<th>Teléfono</th>
+									<th>Nacimiento</th>
+									<th>Inscripción</th>
+									<th>Centro</th>
+									<th>Facultad</th>
+								</tr>	
+							</thead>
+						
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+		
+

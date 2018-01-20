@@ -1,0 +1,865 @@
+<!DOCTYPEhtml>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>Universidad</title>
+
+	<!--Favicons -->
+    <link rel="shortcut icon" href="images/favicon.png">     
+
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+	<link rel="stylesheet" type="text/css" href="css/estilos.css">
+	<!-- DataTable -->
+	<!-- <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css"> -->
+	<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.min.css">
+</head>
+
+<div class="marco">
+		
+</div>	
+	
+
+<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- Bootbox -->
+<script type="text/javascript" src="js/bootbox-4.4.0.min.js"></script>
+
+<!-- DataTable -->
+<!-- <script type="text/javascript" src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script> -->
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+
+	//funcion que verifica si hay session abierta o no.
+	function verificarSesion(){
+	    $.ajax({
+	    	"type": "POST",
+	    	"url": "php/marco.php",
+	    })
+	    .done(function(info) {
+	    	if(info!=0){
+	    		$(".marco").html(info);
+	    		setTimeout(menuAcciones, 1000);
+	    	}else{
+	    		$(".marco").load("marco-login.html")
+	    		setTimeout(scriptLogin, 1000)
+	    	}
+	    })
+	    .fail(function(info) {
+	    	console.log("error:"+info);
+	    })
+	    .always(function() {
+
+	    });
+	}
+
+	verificarSesion();
+
+
+	//funcion que se cargara cuando se muestre la vista marco-login.
+	function scriptLogin(){
+
+		document.getElementById("btn-login").addEventListener("click", function(e){
+			var usuario = document.getElementById("usuario").value;
+			var password = document.getElementById("password").value;
+
+			//enviara el user y password por ajax a login.php para inisiar sesion.
+			var datos = {
+                "usuario" : usuario,
+                "password" : password
+        	};
+        	$.ajax({
+                "data":  datos, //datos que se envian a traves de ajax
+                "url":   'php/login.php', //archivo que recibe la peticion
+                "type":  'post', //método de envio
+                beforeSend: function () {
+                    //espera
+                },
+                success:  function (respuesta) { //una vez que el archivo recibe el request lo procesa y lo devuelve
+                    if(respuesta == 1){
+                    	$(".marco").load("php/marco.php");
+	    				setTimeout(menuAcciones, 1000);
+                    }else{
+                    	bootbox.alert(respuesta);
+                    }
+                }
+        	});
+		}, false);
+	}
+	//Carga el script para cada una de las categorias
+	function menuAcciones(){
+		//Esta bandera indicara si ya hay una categoria cargada en el contenedor #tabes para poder limpiarlo
+		var bandera = false;
+		document.getElementById("inscripciones").addEventListener("click", function(e){
+			e.preventDefault();
+			if(bandera == true){
+				/*var tabs = document.getElementById("tabes");
+				var tab = document.getElementById("tab1");
+
+				tabs.removeChild(tab);  */
+				$("#tabes").empty();
+				$("#tabes").load('php/inscripciones.html', function(){
+					cargarTab1();
+					bandera = true;
+					document.getElementById("generarPdf").classList.add("ocultar");
+				});
+
+				//tab.classList.remove("ocultar");
+			}else{
+				$("#tabes").load('php/inscripciones.html', function(){
+					cargarTab1();
+					bandera = true;
+					document.getElementById("generarPdf").classList.add("ocultar");
+				});
+			}
+
+		}, false );
+
+		document.getElementById("asignaciones").addEventListener("click", function(e){
+			e.preventDefault();
+			if(bandera == true){
+
+				$("#tab1").remove();
+				$("#tabes").load('php/asignaciones.html', function(){
+					cargarAsignacion();
+					bandera = true;
+					document.getElementById("generarPdf").classList.remove("ocultar");
+				});
+				
+				//tab.classList.add("ocultar");
+			}else{
+				$("#tabes").load('php/asignaciones.html', function(){
+					cargarAsignacion();
+					bandera = true;
+					document.getElementById("generarPdf").classList.remove("ocultar");
+				});
+			}
+
+		}, false );
+
+	}	
+
+	//$(document).ready(function(){
+
+		//carga el select Centro de estudios y luego carga el select Facultad
+		function cargarCentro(idCentro){
+			$("#centro-estudio").load("php/CentroEstudio.php", function(){
+				seleccionarFacultad(idCentro);
+			});
+		}
+
+		//LLenando Select Facultad.  Se enviara el Centro de estudios seleccionado por ajax
+		function seleccionarFacultad(valueSelected, callback){
+		    var en = {centro: valueSelected};
+		    $.ajax({
+		    	"type": "POST",
+		    	"url": "php/Facultad.php",
+		    	"data": en
+		    })
+		    .done(function(info) {
+		    	$("#facultad").html(info);
+		    		if(typeof callback === 'function'){
+		    			callback();
+		    		}
+
+		    })
+		    .fail(function(info) {
+		    	bootbox.alert("error1"+info);
+		    })
+		    .always(function() {
+
+		    });
+		}
+
+		// Retorna la fecha del systema cliente
+		function obtenerFechaHoy(){
+			var mydate = new Date(); 
+			var year=mydate.getYear(); 
+			if (year < 1000) 
+				year+=1900; 
+			//var day=mydate.getDay(); 
+			var month=mydate.getMonth()+1; 
+			if (month<10) 
+				month="0"+month; 
+			var daym=mydate.getDate(); 
+			if (daym<10) 
+				daym="0"+daym; 
+			var fechaActual = year+"-"+month+"-"+daym;
+			return fechaActual;
+		}
+
+		function cargarAsignacion(){
+			var entradas = {
+				carne: document.getElementById('carne'),
+				nombres: document.getElementById('nombres'),
+				apellidos: document.getElementById('apellidos'),
+				salon: document.getElementById('salon'),
+				calificacion: document.getElementById('calificacion'),
+				ingreso: document.getElementById('ingreso'),
+				centro: document.getElementById('centro-estudio'),
+				facultad: document.getElementById('facultad'),
+				semestre: document.getElementById('semestre'),
+				curso: document.getElementById('curso'),
+				nuevo: document.getElementById('nuevo'),
+				guardar: document.getElementById('guardar'),
+				actualizar: document.getElementById('actualizar'),
+				eliminar: document.getElementById('eliminar'),
+				generarPdf: document.getElementById('generarPdf'),
+				cerrarModal: document.getElementById('cerrar-modal'),
+				asignaciones: document.getElementById('asignaciones'),
+				inscripciones: document.getElementById('inscripciones')
+			};
+
+			entradas.calificacion.value = 0;
+
+			//Asignando fecha actual al control fecha ingreso.
+			entradas.ingreso.value = obtenerFechaHoy();
+
+			//Carga el select Centro de estudios y luego alli mismo carga el select Facultad del id del centro seleccionado
+			cargarCentro(1);
+
+			function cargarSemestre(callback){
+				$("#semestre").load("php/semestre.php", function(){
+					if (typeof callback === 'function'){
+						callback();
+					}
+				});
+			}
+
+			function cargarSalon(){
+				$("#salon").load("php/salon.php");
+			}
+			cargarSalon();
+
+			//LLenando Select Curso.  Se enviara el idFacultad y idSemestre seleccionados por ajax
+			function seleccionarCurso(idFacultad, idSemestre, callback){
+			    var arreglo = {facultad: idFacultad, semestre: idSemestre};
+			    $.ajax({
+			    	"type": "POST",
+			    	"url": "php/curso.php",
+			    	"data": arreglo
+			    })
+			    .done(function(info) {
+			    	$("#curso").html(info);
+			    	if(typeof callback === 'function'){
+			    		callback();
+			    	}
+			    })
+			    .fail(function(info) {
+			    	boobox.alert("error1"+info);
+			    })
+			    .always(function() {
+
+			    });
+			}
+
+			entradas.centro.addEventListener("change", function(e){	
+	    		var valueSelected = $("option:selected", entradas.centro).attr('msg');
+	    		seleccionarFacultad(valueSelected);
+	    	});	
+
+	    	entradas.facultad.addEventListener("change", function(e){	
+	    		cargarSemestre();
+	    	});	
+
+	    	entradas.semestre.addEventListener("change", function(e){	
+	    		var idFacultad = $("option:selected", entradas.facultad).attr('msg');
+	    		var idSemestre = $("option:selected", entradas.semestre).attr('msg');
+	    		seleccionarCurso(idFacultad, idSemestre);
+	    	});	
+
+
+	    	//key tab asignaciones
+			$(function(){
+				$("#carne").keypress(function(e){
+					var enter = e.which;
+					var carne = entradas.carne.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("carne", carne);
+					}
+				});
+
+				$("#nombres").keypress(function(e){
+					var enter = e.which;
+					var nombres = entradas.nombres.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("nombres", nombres);
+					}
+				});
+
+				$("#apellidos").keypress(function(e){
+					var enter = e.which;
+					var nombres = entradas.apellidos.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("apellidos", nombres);
+					}
+				});
+			});
+
+
+			//Busqueda por carne nombres y apellidos listar
+			var busqueda = function(tipoBusqueda, buscar){
+				var datos = {accion: tipoBusqueda, parametro: buscar};
+
+				$("#alumno-nombres").dataTable().fnDestroy();
+				var tablaModal = $("#alumno-nombres").DataTable({
+					
+					"ajax":{
+						"method": "POST",
+						"url": "php/busquedas.php",
+						"data": datos
+					},
+					"columns": [
+						{"data": "carne"},
+						{"data": "nombres"},
+						{"data": "apellidos"},
+						{"data": "sexo"},
+						{"data": "telefono"},
+						{"data": "fecha_nacimiento"},
+						{"data": "fecha_inscripcion"},
+						{"data": "centro"},
+						{"data": "facultad"}
+					],
+					"initComplete" : function(){
+        				seleccionFilasModal();
+      				}
+				});
+				//funcion que seterara las entradas con datos de la fila seleccionada
+				//setTimeout(seleccionFilasModal, 500);
+			}
+
+			//Pasando los datos seleccionados a los controles de entrada
+			var setEntradas = function(tipoEntrada, arreglo){
+				if(tipoEntrada == "alumnos"){
+					//Obtenemos el id del option del select centro de estudios que conicida en la etiqueta msa="nombre del centro obtenido"
+					idCentro = $('#centro-estudio > option[value="'+arreglo[7]+'"]').attr('msg');
+
+					entradas.carne.value = arreglo[0];
+					entradas.nombres.value = arreglo[1];
+					entradas.apellidos.value = arreglo[2];
+					entradas.centro.value = arreglo[7];
+					//llena el select con todos los semestres
+					cargarSemestre();
+					//LLenamos el select facultad de acorde al centro de estudios seleccionado y seleccionar la facultad
+					seleccionarFacultad(idCentro, function(){
+						entradas.facultad.value = arreglo[8];
+					});
+					entradas.curso.value = null;
+
+				}else{
+					var idCentro, idFacultad, idSemestre;
+					//Obtenemos el id del option del select centro de estudios que conicida en la etiqueta msa="nombre del centro obtenido"
+					idCentro = $('#centro-estudio > option[value="'+arreglo[7]+'"]').attr('msg');
+
+					entradas.carne.value = arreglo[0];
+					entradas.nombres.value = arreglo[1];
+					entradas.apellidos.value = arreglo[2];
+					entradas.salon.value = arreglo[9];
+					entradas.calificacion.value = arreglo[4];
+					entradas.ingreso.value = arreglo[8];
+					entradas.centro.value = arreglo[7];
+					
+					//entradas.centro.options[entradas.centro.selectedIndex].text = arreglo[7];
+					//LLenamos el select facultad de acorde al centro de estudios seleccionado y seleccionar la facultad
+					seleccionarFacultad(idCentro, function(){
+						entradas.facultad.value = arreglo[5];
+						idFacultad = $('#facultad > option[value="'+arreglo[5]+'"]').attr('msg');
+						//llenar el select Semestre y seleccionar el correspondiente
+						cargarSemestre(function(){
+							entradas.semestre.value = arreglo[6];
+							idSemestre = $('#semestre > option[value="'+arreglo[6]+'"]').attr('msg');
+							//llenar el select Curso y seleccionar el correspondiente
+							seleccionarCurso(idFacultad, idSemestre, function(){
+								entradas.curso.value = arreglo[3];
+							});
+						});
+
+					});
+				}	
+			}
+
+			//Seleccionando una fila de la tabla Cursos
+			var seleccionFilas = function(){
+				$('#cursos tbody tr').click(function (){
+					//Este arreglo contendra todos los datos de la fila seleccionada arreglo de el texto de los "tds"
+					var arregloDatos = [];
+					//Esta variable servira para no setear las entradas con la numeracion que devuelve la consulta llenarCursos.
+					var cuenta = 0;
+					$(this).children().each(function(){
+						if(cuenta > 0){
+							arregloDatos.push($(this).html());
+						}	
+						cuenta ++;
+					});
+					//funcion que llena los controles de entrada con los datos de la fila seleccionada.
+					setEntradas("cursos", arregloDatos);
+					console.log(arregloDatos);
+				});
+			}
+
+			//funcion que carga los datos del json Cursos al DataTable
+			function listarCursos(carne){
+				var datos = {accion: "llenar", buscar: carne};
+				$("#cursos").dataTable().fnDestroy();
+				var table = $("#cursos").DataTable({
+						
+					"ajax":{
+						"method": "POST",
+						"url": "php/cursos.php",
+						"data": datos
+					},
+					"columns": [
+						{"data": "n"},
+						{"data": "carne"},
+						{"data": "nombres"},
+						{"data": "apellidos"},
+						{"data": "curso"},
+						{"data": "calificacion"},
+						{"data": "facultad"},
+						{"data": "semestre"},
+						{"data": "centro"},
+						{"data": "inscripcion"},
+						{"data": "salon"}
+					],
+					"initComplete" : function(){
+        				seleccionFilas();
+      				}
+				});
+				//setTimeout(seleccionFilas, 500);
+			}
+
+			//Seleccionando una fila de la tabla Alumnos Modal
+			var seleccionFilasModal = function(){
+				$('#alumno-nombres tbody tr').click(function (){
+					//Este arreglo contendra todos los datos de la fila seleccionada arreglo de el texto de los "tds"
+					var arregloDatos = [];
+					$(this).children().each(function(){
+						arregloDatos.push($(this).html());
+					});
+					//funcion que llena los controles de entrada con los datos de la fila seleccionada.
+					setEntradas("alumnos", arregloDatos);
+					console.log(arregloDatos);
+					listarCursos(arregloDatos[0]);
+					$('#ventana1').modal('hide'); // cerrar
+				});
+			}
+
+			//limpiara las entradas para ingresar un nuevo Alumno
+			var limpiar = function(){
+				entradas.carne.value = null;
+				entradas.nombres.value = null;
+				entradas.apellidos.value = null;
+				entradas.salon.value = "<--Seleccione-->";
+				entradas.calificacion.value = 0;
+				obtenerFechaHoy();
+				entradas.centro.value = "<--Seleccione-->";
+				entradas.facultad.value = "<--Seleccione-->";;
+				entradas.semestre.value = "<--Seleccione-->";;
+				entradas.curso.value = "<--Seleccione-->";;
+			}
+
+			//obteniendo los datos de entrada para Guardar, Actualizar o Eliminar | le enviamos un parametro a la funcion
+			var obtenerDatosEntradas = function(accionARealizar){
+				// obteniendo el valor del atributo msg, que es el id del centro
+				var idCentro = $("option:selected", entradas.centro).attr('msg');
+				var idSalon = $("option:selected", entradas.salon).attr('msg');
+				var idSemestre = $("option:selected", entradas.semestre).attr('msg');
+				var idCurso = $("option:selected", entradas.curso).attr('msg');
+				var datos = {
+					accion: accionARealizar,
+					carne: entradas.carne.value,
+					centro: idCentro,
+					curso: idCurso,
+					ingreso: entradas.ingreso.value,
+					calificacion: entradas.calificacion.value,
+					salon: idSalon
+				}
+				//retornara el array
+				console.log(datos);
+				return datos;
+			}
+
+			function accionesAsignaciones(arreglo){
+				$.ajax({
+			    	"type": "POST",
+			    	"url": "php/cursos.php",
+			    	"data": arreglo
+			    })
+			    .done(function(info) {
+			    	bootbox.alert(info);
+			    		listarCursos(arreglo["carne"]);
+			    		//limpia las entradas
+			    		limpiar();
+			    })
+			    .fail(function(info) {
+			    	console.log("error1"+info);
+			    });
+			}	
+
+			//boton que para ingresar una nueva asignacion de curso
+			entradas.nuevo.addEventListener("click", function(){
+				limpiar();
+			})
+
+			//Guardar, Enviando la asignacion por ajax para ser guardados
+			entradas.guardar.addEventListener("click", function(){
+				var arreglo = obtenerDatosEntradas("guardar");
+				accionesAsignaciones(arreglo);
+			}, false );
+
+			//Actualizando asignacion
+			entradas.actualizar.addEventListener("click", function(){
+				var arreglo = obtenerDatosEntradas("actualizar");
+				accionesAsignaciones(arreglo);
+			}, false );
+
+			//Eliminar una Asignacion
+			entradas.eliminar.addEventListener("click", function(){
+				/* if(bootbox.confirm("Está seguro de eliminar el registro")){
+					var arreglo = obtenerDatosEntradas("eliminar");
+					accionesAsignaciones(arreglo);
+		    	} */
+		    	bootbox.confirm("¿Está seguro de eliminar el registro?", function(result){ 
+		    		if(result){
+		    			var arreglo = obtenerDatosEntradas("eliminar");
+						accionesAsignaciones(arreglo);
+					}
+		    	});
+			}, false );
+
+
+			//Generara el pdf de Cursos por alumno.
+			entradas.generarPdf.addEventListener("click", function(){
+				
+				var url = "php/pdf/cursos_alumno.php?carne="+entradas.carne.value;
+				window.open(url, "Cursos por Alumno", "width=900, height=600");
+			})
+
+		}
+		
+		function cargarTab1(){
+			//obteniendo los elementos de entrada
+			var entradas = {
+				carne: document.getElementById('carne'),
+				nombres: document.getElementById('nombres'),
+				apellidos: document.getElementById('apellidos'),
+				genero: document.getElementById('genero'),
+				telefono: document.getElementById('telefono'),
+				nacimiento: document.getElementById('nacimiento'),
+				ingreso: document.getElementById('ingreso'),
+				centro: document.getElementById('centro-estudio'),
+				facultad: document.getElementById('facultad'),
+				nuevo: document.getElementById('nuevo'),
+				guardar: document.getElementById('guardar'),
+				actualizar: document.getElementById('actualizar'),
+				eliminar: document.getElementById('eliminar'),
+				cerrarModal: document.getElementById('cerrar-modal'),
+				asignaciones: document.getElementById('asignaciones'),
+				inscripciones: document.getElementById('inscripciones')
+			};
+
+			//Asignando fecha actual al control fecha ingreso.
+			entradas.ingreso.value = obtenerFechaHoy();
+			
+			cargarCentro();
+
+			//Pasando los datos seleccionados a los controles de entrada
+			var setEntradas = function(arreglo){
+				/*var centrod = entradas.centro.value;
+				var idCentro = 0;
+				$('#centro-estudio > option[msg="'+arreglo[7]+'"]').attr('selected',true);
+				alert(centrod);
+
+				$('#centro-estudio > option[value="'+centrod+'"]').removeAttr('selected');
+				*/
+				var idCentro;
+				idCentro = $('#centro-estudio > option[value="'+arreglo[7]+'"]').attr('msg');
+
+				entradas.carne.value = arreglo[0];
+				entradas.nombres.value = arreglo[1];
+				entradas.apellidos.value = arreglo[2];
+				if(arreglo[3] == "F"){
+					entradas.genero.value = 1;
+				}else{ entradas.genero.value = 2; }
+				entradas.telefono.value = arreglo[4];
+				entradas.nacimiento.value = arreglo[5];
+				entradas.ingreso.value = arreglo[6];
+				entradas.centro.value = arreglo[7];
+
+				/*
+				var esperaCentro = function(){
+					$('#centro-estudio option:contains("'+arreglo[7]+'")').attr('selected',true);
+					idCentro = entradas.centro.value;
+					$('#centro-estudio option:contains("'+centrod+'")').attr("selected",false);
+				}
+				setTimeout(esperaCentro, 100);
+				*/
+
+				//entradas.centro.options[entradas.centro.selectedIndex].text = arreglo[7];
+				//llenar select facultad del centro idcentro y luego seleccionar la facultad correspondiente.
+				seleccionarFacultad(idCentro, function(){
+					entradas.facultad.value = arreglo[8];
+				});
+				//esta funcion se retrasara para lograr que se cargue el Select Facultad y asi seleccionar el campo correspondiente
+				var esperaFacultad = function(){
+					//entradas.facultad.options[entradas.facultad.selectedIndex].text = arreglo[8];
+					//$('#facultad > option[msg="'+arreglo[8]+'"]').attr('selected',true);
+					
+				}	
+			}
+
+			//Seleccionando una fila de la tabla Alumnos
+			var seleccionFilas = function(){
+				$('#alumno tbody tr').click(function (){
+					//Este arreglo contendra todos los datos de la fila seleccionada arreglo de el texto de los "tds"
+					var arregloDatos = [];
+					//esta variable permitira no guardar la numeracion que devuelve el select llenarAlumnos.
+					var cuenta = 0;
+					$(this).children().each(function(){
+						if(cuenta > 0){
+							arregloDatos.push($(this).html());
+						}
+						cuenta ++;	
+					});
+					//funcion que llena los controles de entrada con los datos de la fila seleccionada.
+					setEntradas(arregloDatos);
+					console.log(arregloDatos);
+				});
+			}
+
+			
+			//funcion que carga los datos del json alumnos al DataTable
+			function listar(){
+				var datos = {accion: "llenar"};
+				$("#alumno").dataTable().fnDestroy();
+				var table = $("#alumno").DataTable({
+						
+					"ajax":{
+						"method": "POST",
+						"url": "php/alumnos.php",
+						"data": datos
+					},
+					"columns": [
+						{"data": "n"},
+						{"data": "carne"},
+						{"data": "nombres"},
+						{"data": "apellidos"},
+						{"data": "sexo"},
+						{"data": "telefono"},
+						{"data": "fecha_nacimiento"},
+						{"data": "fecha_inscripcion"},
+						{"data": "centro"},
+						{"data": "facultad"}
+					],
+					"initComplete" : function(){
+        				seleccionFilas();
+      				}
+				});
+				//setTimeout(seleccionFilas, 500);
+			}
+
+			//Muestra los Alumnos en el DataTable
+			listar();
+
+			//Seleccionando una fila de la tabla Alumnos Modal
+			var seleccionFilasModal = function(){
+				$('#alumno-nombres tbody tr').click(function (){
+					//Este arreglo contendra todos los datos de la fila seleccionada arreglo de el texto de los "tds"
+					var arregloDatos = [];
+					$(this).children().each(function(){
+						arregloDatos.push($(this).html());
+					});
+					//funcion que llena los controles de entrada con los datos de la fila seleccionada.
+					setEntradas(arregloDatos);
+					console.log(arregloDatos);
+					$('#ventana1').modal('hide'); // cerrar
+				});
+			}
+
+
+			//key
+			$(function(){
+				$("#carne").keypress(function(e){
+					var enter = e.which;
+					var carne = entradas.carne.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("carne", carne);
+					}
+				});
+
+				$("#nombres").keypress(function(e){
+					var enter = e.which;
+					var nombres = entradas.nombres.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("nombres", nombres);
+					}
+				});
+
+				$("#apellidos").keypress(function(e){
+					var enter = e.which;
+					var nombres = entradas.apellidos.value;
+					if(enter == 13){
+						$("#ventana1").modal('show');
+						busqueda("apellidos", nombres);
+					}
+				});
+			});
+
+
+			//Busqueda por carne, nombres y apellidos de Alumnos
+			var busqueda = function(tipoBusqueda, buscar){
+				var datos = {accion: tipoBusqueda, parametro: buscar};
+				$("#alumno-nombres").dataTable().fnDestroy();
+				var tablaModal = $("#alumno-nombres").DataTable({
+					
+					"ajax":{
+						"method": "POST",
+						"url": "php/busquedas.php",
+						"data": datos
+					},
+					"columns": [
+						{"data": "carne"},
+						{"data": "nombres"},
+						{"data": "apellidos"},
+						{"data": "sexo"},
+						{"data": "telefono"},
+						{"data": "fecha_nacimiento"},
+						{"data": "fecha_inscripcion"},
+						{"data": "centro"},
+						{"data": "facultad"}
+					],
+					"initComplete" : function(){
+        				seleccionFilasModal();
+      				}
+
+				});
+				//funcion que seteara las entradas con datos de la fila seleccionada
+				//setTimeout(seleccionFilasModal, 500);
+			}
+
+			//limpiara las entradas para ingresar un nuevo Alumno
+			var nuevo = function(){
+				entradas.carne.value = null;
+				entradas.nombres.value = null;
+				entradas.apellidos.value = null;
+				entradas.genero.value = 0;
+				entradas.telefono.value = null;
+				entradas.nacimiento.value = null;
+				entradas.ingreso.value = null;
+				entradas.centro.value = "<--Seleccione-->";
+				entradas.facultad.value = "<--Seleccione-->";;
+			}
+
+			//obteniendo los datos de entrada para Guardar, Actualizar o Eliminar | le enviamos un parametro a la funcion
+			var obtenerDatosEntradas = function(accionARealizar){
+				// obteniendo el valor del atributo msg, que es el id del centro
+				var idCentro = $("option:selected", entradas.centro).attr('msg');
+				var idFacultad = $("option:selected", entradas.facultad).attr('msg');
+				var datos = {
+					accion: accionARealizar,
+					carne: entradas.carne.value,
+					nombres: entradas.nombres.value,
+					apellidos: entradas.apellidos.value, 
+					genero: entradas.genero.value,
+					telefono: entradas.telefono.value,
+					nacimiento: entradas.nacimiento.value,
+					ingreso: entradas.ingreso.value,
+					centro: idCentro,
+					facultad: idFacultad
+				}
+				//retornara el array
+				console.log(datos);
+				return datos;
+			}
+
+			function accionesAlumnos(arreglo){
+				$.ajax({
+		    		"type": "POST",
+		    		"url": "php/alumnos.php",
+		    		"data": arreglo
+		    	})
+		    	.done(function(info) {
+		    		bootbox.alert(info);
+		    		nuevo();
+		    		listar();
+		    	})
+		    	.fail(function(info) {
+		    		bootbox.alert("error1"+info);
+		    	});
+		    }	
+
+			//Guardar, Enviando el Alumno por ajax para ser guardados
+			entradas.guardar.addEventListener("click", function(){
+				var arreglo = obtenerDatosEntradas("guardar");
+				accionesAlumnos(arreglo);
+			}, false );
+
+			//Actualizar, Enviando el Alumno por ajax para ser guardados
+			entradas.actualizar.addEventListener("click", function(){
+				var arreglo = obtenerDatosEntradas("actualizar");
+				accionesAlumnos(arreglo);
+			}, false );
+
+			//Eliminar un alumno
+			entradas.eliminar.addEventListener("click", function(){
+				/* if(confirm("Está seguro de eliminar el registro")){
+				var arreglo = obtenerDatosEntradas("eliminar");
+					accionesAlumnos(arreglo);
+		    	} */
+
+		    	bootbox.confirm("¿Está seguro de eliminar el registro?", function(result){ 
+		    		if(result){
+		    			var arreglo = obtenerDatosEntradas("eliminar");
+						accionesAlumnos(arreglo);
+					}
+		    	});	
+			}, false );
+
+			//llamando a la funcion nuevo al clickear el boton Nuevo
+			entradas.nuevo.addEventListener("click", function(){
+		        nuevo();
+		    }, false );
+
+		    //Jquery
+			//Cada que se seleccione un Centro, se cargaran las facultades de este en el select Facultad
+			//$('#centro-estudio').on('change', function (eje) {
+			entradas.centro.addEventListener("change", function(e){	
+	    		//var optionSelected = $("option:selected", this);
+	    		//var valueSelected = this.value;
+	    		//seleccionando el texto del atributo msg, del option seleccionado
+	    		var valueSelected = $("option:selected", entradas.centro).attr('msg');
+	    		/*var datos = $(this).serializeArray();
+	    		var datos = [];
+	    		datos.push({'centro': valueSelected});
+	    		console.log(datos); */
+
+	    		//funcion que carga las facultades que le pertenecen al Centro de estudios seleccionado.
+	    		seleccionarFacultad(valueSelected);
+	    	});	
+			//});
+		}
+	    
+
+	//}); // fin jquery
+
+	
+
+	
+
+
+	
+
+	
+	
+
+	
+	
+</script>
+</body>
+</html>
